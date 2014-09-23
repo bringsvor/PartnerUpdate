@@ -47,9 +47,9 @@ class PartnerUpdateApp(App):
         return PartnerUpdate()
 
 
-partner_attributes = ['name', 'phone', 'street', 'street2', 'zip', 'city']
+partner_attributes = ['name', 'phone', 'street', 'street2', 'zip', 'city', 'school', 'school_class', 'parent_1', 'parent_2']
 
-partner_datatypes = ['text',  'text',   'text',   'text',   'text', 'text']
+partner_datatypes = ['text',  'text',   'text',   'text',   'text', 'text', 'text', 'text', 'text', 'text']
 partner_columns = zip(partner_attributes, partner_datatypes)
 
 
@@ -74,7 +74,7 @@ class PartnerDetailView(GridLayout):
             for attribute in partner_attributes:
                 self.add_widget(Label(text="{0}:".format(attribute),
                                       halign='right'))
-                print "REDRAW", self.child_name, attribute, self.parent_o.partner_data
+                #print "REDRAW", self.child_name, attribute, self.parent_o.partner_data
                 if attribute in self.parent_o.partner_data[self.child_name]:
                     pdata = self.parent_o.partner_data[self.child_name]
                     if pdata[attribute]:
@@ -84,13 +84,25 @@ class PartnerDetailView(GridLayout):
                 else:
                     value = ''
                 c = TextInput(text=value, height='29px',size_hint_y=None, multiline=False)
+                c.attribute = attribute
+                c.bind(text = self.update_textinput)
                 self.add_widget(c)
+
                 #c.size_hint_y = 0.1
 
                 c.set_height = '25px'
 
+    def update_textinput(self, instance, value):
+        if not hasattr(instance, 'attribute'):
+            raise AttributeError('The widget should have a attribute set...')
+        attribute = instance.attribute
+        print "UPDATED", self.child_name, attribute, instance.text, value
+        communicate.update_attribute(self.child_name, attribute, value)
+        instance.background = [0,1,0,0]
+
 
     def partner_changed(self, list_adapter, **args):
+        self.widgets = {}
         if len(list_adapter.selection) == 0:
             self.child_name = None
         else:
@@ -206,7 +218,7 @@ class PartnerUpdateView(GridLayout):
 
     def fetch_data(self, instance):
         self.popup.dismiss()
-        #communicate.fetch_partners(self.server, self.user, self.password)
+        communicate.fetch_partners(self.server, self.user, self.password)
         self.partner_data = communicate.get_partners_from_db()
         print "DATA", self.dict_adapter.data.keys()
         for d in self.dict_adapter.data.items():
@@ -233,7 +245,7 @@ class PartnerUpdateView(GridLayout):
 
     def send_data(self, instance):
         self.popup.dismiss()
-        communicate.send_partners(self.server, self.user, self.password, partner_data)
+        communicate.send_partners(self.server, self.user, self.password)
 
 if __name__ == '__main__':
 

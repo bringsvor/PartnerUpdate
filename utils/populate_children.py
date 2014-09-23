@@ -9,7 +9,7 @@ oerp = oerplib.OERP('localhost', protocol='xmlrpc', port=8069)
 
 print(oerp.db.list())
 
-user = oerp.login('admin', 'admin', 'barn')
+user = oerp.login('admin', 'admin', 'fadder')
 print(user.company_id.name)
 
 """
